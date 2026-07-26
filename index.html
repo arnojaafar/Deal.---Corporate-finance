@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Quiz et mises en situation en finance d'entreprise.">
+<meta name="theme-color" content="#16453C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deal.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" href="./icon-192.png">
+<title>Deal. — Finance d'entreprise</title>
+<style>
+/* ============================================================
+   TOKENS — tout le style tient ici. Pour redesigner l'appli,
+   modifier ces variables suffit dans 90 % des cas.
+   ============================================================ */
+:root{
+  --paper:#FAFAF8;
+  --surface:#FFFFFF;
+  --ink:#14171B;
+  --muted:#6A7078;
+  --line:#E4E4DF;
+  --line-strong:#C9C9C2;
+  --accent:#16453C;
+  --accent-soft:#EDF2F0;
+  --ok:#1C6B4E;
+  --ok-soft:#EAF3EE;
+  --ko:#9E3A31;
+  --ko-soft:#F8ECEA;
+  --warn:#A8752A;
+
+  --font-display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+
+  --r-sm:6px; --r-md:10px; --r-lg:16px;
+  --gap:20px;
+  --maxw:680px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  padding-bottom:env(safe-area-inset-bottom);
+  overscroll-behavior-y:contain;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px;}
+
+/* ---------- Header ---------- */
+header.top{
+  border-bottom:1px solid var(--line);
+  background:var(--surface);
+  position:sticky;top:0;z-index:20;
+}
+.top-inner{
+  max-width:var(--maxw);margin:0 auto;padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.wordmark{
+  font-family:var(--font-display);
+  font-size:26px;font-weight:600;letter-spacing:-.02em;
+  color:var(--ink);text-decoration:none;line-height:1;
+}
+.wordmark span{color:var(--accent);}
+.top-actions{display:flex;gap:8px;}
+.ghost{
+  background:none;border:1px solid var(--line-strong);color:var(--muted);
+  padding:6px 12px;border-radius:var(--r-sm);font-size:13px;
+}
+.ghost:hover{border-color:var(--ink);color:var(--ink);}
+
+/* ---------- Screens ---------- */
+.screen{display:none;padding:28px 0 64px;}
+.screen.active{display:block;animation:fade .18s ease-out;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+h1.title{font-family:var(--font-display);font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;}
+p.lede{color:var(--muted);margin:0 0 26px;font-size:15px;}
+h2.sec{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:32px 0 12px;font-weight:600;}
+
+/* ---------- Stats bandeau ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;}
+.stat{background:var(--surface);padding:14px 12px;text-align:center;}
+.stat-v{font-family:var(--font-display);font-size:24px;line-height:1;}
+.stat-l{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:.03em;}
+
+/* ---------- Cartes de mode ---------- */
+.modes{display:flex;flex-direction:column;gap:10px;}
+.mode{
+  display:block;width:100%;text-align:left;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-md);padding:18px;
+  transition:border-color .15s,transform .1s;
+}
+.mode:hover{border-color:var(--accent);}
+.mode:active{transform:scale(.995);}
+.mode:disabled{opacity:.5;cursor:not-allowed;}
+.mode:disabled:hover{border-color:var(--line);}
+.mode-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+.mode-n{font-family:var(--font-display);font-size:19px;letter-spacing:-.01em;}
+.mode-t{font-size:11px;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:100px;white-space:nowrap;font-weight:600;letter-spacing:.02em;}
+.mode-d{font-size:14px;color:var(--muted);margin-top:5px;}
+
+/* ---------- Filtres ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{
+  background:var(--surface);border:1px solid var(--line-strong);color:var(--muted);
+  padding:7px 13px;border-radius:100px;font-size:13px;transition:.12s;
+}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;}
+.chip .n{opacity:.55;margin-left:5px;font-size:11px;}
+
+.cta{
+  width:100%;background:var(--accent);color:#fff;border:none;
+  padding:15px;border-radius:var(--r-md);font-size:16px;font-weight:600;margin-top:26px;
+  transition:.12s;
+}
+.cta:hover{filter:brightness(1.12);}
+.cta:disabled{background:var(--line-strong);cursor:not-allowed;filter:none;}
+
+/* ---------- Quiz ---------- */
+.qbar{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+.qtrack{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
+.qfill{height:100%;background:var(--accent);width:0;transition:width .25s;}
+.qcount{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+.qmeta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.tag{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:2px 8px;border-radius:100px;background:var(--surface);}
+.tag.diff{color:var(--accent);border-color:var(--accent-soft);background:var(--accent-soft);font-weight:600;}
+
+.qtext{font-family:var(--font-display);font-size:21px;line-height:1.4;margin:0 0 22px;letter-spacing:-.01em;}
+
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{
+  display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:14px 15px;font-size:15px;line-height:1.45;transition:.12s;color:var(--ink);
+}
+.opt:hover:not(:disabled){border-color:var(--ink);}
+.opt:disabled{cursor:default;}
+.opt-k{
+  flex:0 0 22px;height:22px;border:1px solid var(--line-strong);border-radius:5px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);
+  font-weight:600;margin-top:1px;
+}
+.opt.good{border-color:var(--ok);background:var(--ok-soft);}
+.opt.good .opt-k{background:var(--ok);border-color:var(--ok);color:#fff;}
+.opt.bad{border-color:var(--ko);background:var(--ko-soft);}
+.opt.bad .opt-k{background:var(--ko);border-color:var(--ko);color:#fff;}
+
+.skip{background:none;border:none;color:var(--muted);font-size:14px;padding:12px 0;text-decoration:underline;text-underline-offset:3px;width:100%;}
+.skip:hover{color:var(--ink);}
+
+.fb{margin-top:20px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-sm);background:var(--surface);padding:16px;}
+.fb-h{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:8px;}
+.fb.ok .fb-h{color:var(--ok);} .fb.ok{border-left-color:var(--ok);}
+.fb.ko .fb-h{color:var(--ko);} .fb.ko{border-left-color:var(--ko);}
+.fb.na .fb-h{color:var(--warn);} .fb.na{border-left-color:var(--warn);}
+.fb-b{font-size:15px;line-height:1.6;}
+.fb-s{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);}
+
+/* ---------- Résultat ---------- */
+.score{text-align:center;padding:34px 0 10px;}
+.score-v{font-family:var(--font-display);font-size:72px;line-height:1;letter-spacing:-.03em;}
+.score-v small{font-size:26px;color:var(--muted);}
+.rank{font-family:var(--font-display);font-size:27px;margin-top:14px;color:var(--accent);}
+.rank-d{color:var(--muted);font-size:14px;margin-top:6px;}
+
+.ladder{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--surface);margin-top:26px;}
+.rung{display:flex;justify-content:space-between;padding:10px 15px;font-size:14px;border-bottom:1px solid var(--line);color:var(--muted);}
+.rung:last-child{border-bottom:none;}
+.rung.on{background:var(--accent-soft);color:var(--accent);font-weight:700;}
+.rung .r-s{font-variant-numeric:tabular-nums;}
+
+.review{border-top:1px solid var(--line);padding:18px 0;}
+.review:last-child{border-bottom:1px solid var(--line);}
+.review-q{font-family:var(--font-display);font-size:17px;line-height:1.4;margin-bottom:10px;}
+.review-l{font-size:14px;margin:4px 0;display:flex;gap:8px;}
+.review-l b{flex:0 0 auto;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding-top:2px;}
+.review-l.yours b{color:var(--ko);} .review-l.right b{color:var(--ok);}
+.review-e{font-size:14px;color:var(--muted);margin-top:9px;line-height:1.6;}
+
+/* ---------- Progression par thème ---------- */
+.tline{padding:12px 0;border-bottom:1px solid var(--line);}
+.tline-h{display:flex;justify-content:space-between;font-size:14px;margin-bottom:7px;gap:10px;}
+.tline-n{font-weight:600;}
+.tline-v{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.tbar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;}
+.tbar i{display:block;height:100%;background:var(--accent);border-radius:3px;}
+
+.empty{text-align:center;color:var(--muted);padding:44px 20px;font-size:15px;}
+
+.foot{display:flex;gap:10px;margin-top:26px;}
+.foot .cta{margin-top:0;}
+.foot .ghost{padding:15px;border-radius:var(--r-md);flex:0 0 auto;}
+
+.hint{font-size:12px;color:var(--muted);text-align:center;margin-top:16px;}
+@media(max-width:520px){.hint{display:none;} .score-v{font-size:60px;} h1.title{font-size:26px;}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="#" class="wordmark" id="home-link">Deal<span>.</span></a>
+    <div class="top-actions">
+      <button class="ghost" id="btn-stats">Progression</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ACCUEIL -->
+  <section class="screen active" id="s-home">
+    <h1 class="title">Tester sa finance d'entreprise</h1>
+    <p class="lede">M&amp;A, private equity, VC, transaction services, restructuring, valuation.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-v" id="st-seen">0</div><div class="stat-l">questions vues</div></div>
+      <div class="stat"><div class="stat-v" id="st-rate">—</div><div class="stat-l">taux de réussite</div></div>
+      <div class="stat"><div class="stat-v" id="st-due">0</div><div class="stat-l">à réviser</div></div>
+    </div>
+
+    <h2 class="sec">Modes</h2>
+    <div class="modes">
+      <button class="mode" data-mode="training">
+        <div class="mode-h"><span class="mode-n">Entraînement</span><span class="mode-t">libre</span></div>
+        <div class="mode-d">Questions filtrées par thème et par niveau. Correction et explication immédiates.</div>
+      </button>
+      <button class="mode" data-mode="deal">
+        <div class="mode-h"><span class="mode-n">Deal.</span><span class="mode-t">20 questions</span></div>
+        <div class="mode-d">Conditions d'examen : aucune correction avant la fin. Note sur 20 et grade obtenu.</div>
+      </button>
+      <button class="mode" data-mode="review" id="mode-review">
+        <div class="mode-h"><span class="mode-n">Révision</span><span class="mode-t" id="review-badge">0 due</span></div>
+        <div class="mode-d">Répétition espacée : les questions ratées reviennent à J+1, J+3, J+7, J+21, J+60.</div>
+      </button>
+    </div>
+    <p class="hint">Raccourcis pendant une session : touches 1 à 4 pour répondre, Entrée pour continuer.</p>
+  </section>
+
+  <!-- CONFIGURATION ENTRAÎNEMENT -->
+  <section class="screen" id="s-config">
+    <h1 class="title">Entraînement</h1>
+    <p class="lede">Sélectionner un périmètre. Sans sélection, tout est inclus.</p>
+
+    <h2 class="sec">Thèmes</h2>
+    <div class="chips" id="chips-theme"></div>
+
+    <h2 class="sec">Niveau</h2>
+    <div class="chips" id="chips-diff"></div>
+
+    <h2 class="sec">Longueur</h2>
+    <div class="chips" id="chips-len"></div>
+
+    <button class="cta" id="btn-start">Commencer — <span id="pool-count">0</span> questions disponibles</button>
+    <div class="foot"><button class="ghost" data-go="home" style="width:100%;padding:14px;border-radius:10px;">Retour</button></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="screen" id="s-quiz">
+    <div class="qbar">
+      <div class="qtrack"><div class="qfill" id="q-fill"></div></div>
+      <div class="qcount" id="q-count">1 / 20</div>
+    </div>
+    <div class="qmeta" id="q-meta"></div>
+    <p class="qtext" id="q-text"></p>
+    <div class="opts" id="q-opts"></div>
+    <button class="skip" id="btn-idk">Je ne sais pas</button>
+    <div id="q-fb"></div>
+    <div class="foot" id="q-foot" style="display:none;">
+      <button class="cta" id="btn-next">Question suivante</button>
+    </div>
+  </section>
+
+  <!-- RÉSULTAT -->
+  <section class="screen" id="s-result">
+    <div class="score">
+      <div class="score-v" id="r-score">0<small>/20</small></div>
+      <div class="rank" id="r-rank"></div>
+      <div class="rank-d" id="r-rank-d"></div>
+    </div>
+    <div class="ladder" id="r-ladder"></div>
+    <h2 class="sec" id="r-review-h">À revoir</h2>
+    <div id="r-review"></div>
+    <div class="foot">
+      <button class="cta" id="btn-again">Rejouer</button>
+      <button class="ghost" data-go="home">Accueil</button>
+    </div>
+  </section>
+
+  <!-- PROGRESSION -->
+  <section class="screen" id="s-stats">
+    <h1 class="title">Progression</h1>
+    <p class="lede">Une question est acquise après trois bonnes réponses successives.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-v" id="p-seen">0</div><div class="stat-l">vues</div></div>
+      <div class="stat"><div class="stat-v" id="p-mastered">0</div><div class="stat-l">acquises</div></div>
+      <div class="stat"><div class="stat-v" id="p-rate">—</div><div class="stat-l">réussite</div></div>
+    </div>
+    <h2 class="sec">Par thème</h2>
+    <div id="p-themes"></div>
+    <div class="foot">
+      <button class="cta" data-go="home">Retour</button>
+      <button class="ghost" id="btn-reset">Réinitialiser</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ===== BANQUE DE QUESTIONS (injectée ci-dessous) ===== */
+/* ============================================================
+   BANQUE DE QUESTIONS — "Deal."
+   Schéma : id, theme, sousTheme, difficulte, enonce, options,
+            reponse (index 0-based dans options), explication, source
+   Pour ajouter une question : copier un bloc, incrémenter l'id.
+   ============================================================ */
+
+const QUESTIONS = [
+
+/* ---------- VALUATION ---------- */
+{
+  id: "VAL-001", theme: "Valuation", sousTheme: "Bridge VE / VFP", difficulte: "Débutant",
+  enonce: "Une société affiche une valeur d'entreprise de 120 M€, une dette financière brute de 40 M€ et une trésorerie de 15 M€. Quelle est la valeur des fonds propres ?",
+  options: ["95 M€", "145 M€", "80 M€", "160 M€"],
+  reponse: 0,
+  explication: "Valeur des fonds propres = VE − dette nette. Dette nette = 40 − 15 = 25 M€. Donc 120 − 25 = 95 M€. C'est le bridge le plus demandé en entretien : la VE valorise l'outil opérationnel, indépendamment de la façon dont il est financé ; on retire ensuite ce qui revient aux créanciers pour obtenir ce qui revient à l'actionnaire.",
+  source: "Vernimmen — Valeur d'entreprise et valeur des capitaux propres"
+},
+{
+  id: "VAL-002", theme: "Valuation", sousTheme: "DCF", difficulte: "Débutant",
+  enonce: "Le WACC (coût moyen pondéré du capital) sert à actualiser quels flux ?",
+  options: ["Les flux revenant aux seuls actionnaires (FCFE)", "Les flux disponibles pour l'ensemble des pourvoyeurs de fonds (FCFF)", "Le résultat net", "Les dividendes versés"],
+  reponse: 1,
+  explication: "Règle de cohérence flux/taux : un taux qui rémunère à la fois les actionnaires et les créanciers doit actualiser des flux disponibles pour ces deux catégories. WACC → FCFF → on obtient la valeur d'entreprise. Si on actualise les FCFE (après service de la dette), on utilise le coût des capitaux propres (Ke) et on obtient directement la valeur des fonds propres.",
+  source: "Vernimmen — Le coût du capital"
+},
+{
+  id: "VAL-003", theme: "Valuation", sousTheme: "DCF", difficulte: "Intermédiaire",
+  enonce: "Flux normatif de 10 M€, WACC de 9 %, croissance à l'infini de 2 %. Quelle est la valeur terminale ?",
+  options: ["111 M€", "143 M€", "500 M€", "91 M€"],
+  reponse: 1,
+  explication: "Formule de Gordon-Shapiro : VT = flux normatif / (WACC − g) = 10 / (0,09 − 0,02) = 142,9 M€. Attention au piège classique : le flux à retenir est celui de l'année n+1, pas celui de la dernière année du plan. Et la VT doit ensuite être actualisée pour être ramenée à la date de valorisation.",
+  source: "Vernimmen — La valeur terminale"
+},
+{
+  id: "VAL-004", theme: "Valuation", sousTheme: "Multiples", difficulte: "Intermédiaire",
+  enonce: "Pourquoi préférer un multiple d'EV/EBITDA à un P/E pour comparer deux sociétés du même secteur ?",
+  options: ["Parce que l'EBITDA est toujours supérieur au résultat net", "Parce que l'EV/EBITDA est neutre vis-à-vis de la structure financière et de la politique d'amortissement", "Parce que le P/E n'est pas utilisé en Europe", "Parce que l'EBITDA intègre les investissements"],
+  reponse: 1,
+  explication: "Le P/E est calculé sur le résultat net, donc après charges d'intérêts et impôt : deux sociétés identiques opérationnellement mais différemment endettées afficheront des P/E très différents. L'EV/EBITDA neutralise à la fois la structure financière et les politiques d'amortissement. Son défaut symétrique : il ignore totalement l'intensité capitalistique, d'où l'usage de l'EV/EBIT ou de l'EV/(EBITDA − capex) dans les secteurs lourds.",
+  source: "Vernimmen — L'évaluation par les multiples"
+},
+{
+  id: "VAL-005", theme: "Valuation", sousTheme: "Coût du capital", difficulte: "Avancé",
+  enonce: "Bêta désendetté de 0,8, gearing D/CP de 50 %, taux d'IS de 25 %. Quel est le bêta endetté ?",
+  options: ["1,20", "1,10", "0,80", "1,00"],
+  reponse: 1,
+  explication: "Formule de Hamada : βendetté = βdésendetté × [1 + (1 − IS) × D/CP] = 0,8 × [1 + 0,75 × 0,5] = 0,8 × 1,375 = 1,10. La logique : la dette amplifie la volatilité du résultat revenant à l'actionnaire, donc son risque, donc le bêta. L'économie d'impôt liée aux intérêts atténue partiellement cet effet, d'où le facteur (1 − IS).",
+  source: "Vernimmen — Risque et rentabilité exigée"
+},
+{
+  id: "VAL-006", theme: "Valuation", sousTheme: "DCF", difficulte: "Avancé",
+  enonce: "Dans un DCF, on relève le niveau de BFR normatif retenu sur toute la durée du plan. Quel est l'effet sur la valeur d'entreprise ?",
+  options: ["Aucun effet, le BFR est un poste de bilan", "La valeur augmente", "La valeur diminue", "L'effet dépend du secteur"],
+  reponse: 2,
+  explication: "Une hausse du BFR est une consommation de cash : elle réduit les free cash flows, donc la valeur d'entreprise. C'est exactement pour cette raison que le niveau normatif de BFR est un point de négociation central en transaction — il pèse à la fois sur le DCF et sur le mécanisme d'ajustement de prix au closing.",
+  source: "PwC Deals — Atelier BFR et saisonnalité"
+},
+{
+  id: "VAL-007", theme: "Valuation", sousTheme: "DCF", difficulte: "Expert",
+  enonce: "Dans un DCF classique sur un plan à 5 ans d'une société mature, quel poids représente typiquement la valeur terminale dans la valeur d'entreprise ?",
+  options: ["Moins de 20 %", "Environ 30 à 40 %", "Environ 60 à 80 %", "Toujours plus de 95 %"],
+  reponse: 2,
+  explication: "La VT pèse le plus souvent 60 à 80 % de la VE sur un horizon de 5 ans. C'est la principale fragilité du DCF : la valeur repose massivement sur deux paramètres (g et WACC) que personne ne connaît. D'où le réflexe attendu en entretien — présenter systématiquement une matrice de sensibilité WACC × g plutôt qu'un chiffre unique.",
+  source: "Vernimmen — Les limites du DCF"
+},
+{
+  id: "VAL-008", theme: "Valuation", sousTheme: "Bridge VE / VFP", difficulte: "Intermédiaire",
+  enonce: "Pour passer de la valeur des fonds propres à la valeur d'entreprise d'un groupe consolidé, comment traiter les intérêts minoritaires ?",
+  options: ["On les déduit de la valeur d'entreprise", "On les ajoute à la valeur des fonds propres du groupe", "On les ignore, ils sont sans effet", "On les ajoute uniquement s'ils dépassent 50 %"],
+  reponse: 1,
+  explication: "L'EBITDA consolidé intègre 100 % des filiales intégrées globalement, y compris la quote-part des minoritaires. Pour rester cohérent, la VE doit correspondre à 100 % de l'actif économique : on ajoute donc les intérêts minoritaires. Symétriquement, les participations mises en équivalence sont déduites, car leur résultat n'est pas dans l'EBITDA.",
+  source: "Vernimmen — Le passage de la valeur d'entreprise à la valeur des capitaux propres"
+},
+{
+  id: "VAL-009", theme: "Valuation", sousTheme: "Méthodes", difficulte: "Débutant",
+  enonce: "Pourquoi les multiples issus de transactions comparables sont-ils généralement supérieurs aux multiples boursiers ?",
+  options: ["Parce qu'ils intègrent une prime de contrôle", "Parce qu'ils sont calculés sur le résultat net", "Parce que les sociétés cotées sont moins rentables", "Parce qu'ils excluent la dette"],
+  reponse: 0,
+  explication: "Acquérir le contrôle d'une société permet d'en piloter la stratégie, la trésorerie et de capter des synergies : l'acquéreur paie pour cela une prime de contrôle, historiquement de l'ordre de 20 à 30 %. Le cours de bourse reflète lui la valeur d'une participation minoritaire, sans pouvoir de décision.",
+  source: "Vernimmen — Les comparables boursiers et transactionnels"
+},
+{
+  id: "VAL-010", theme: "Valuation", sousTheme: "Coût du capital", difficulte: "Avancé",
+  enonce: "Taux sans risque 3 %, prime de risque de marché 6 %, bêta endetté 1,2. Quel est le coût des capitaux propres selon le MEDAF ?",
+  options: ["7,2 %", "9,0 %", "10,2 %", "12,0 %"],
+  reponse: 2,
+  explication: "MEDAF : Ke = rf + β × prime de risque de marché = 3 % + 1,2 × 6 % = 10,2 %. En pratique on ajoute souvent une prime de taille pour les mid-caps et une prime de risque pays hors zone de référence — c'est d'ailleurs le premier endroit où un DCF se fait challenger en soutenance.",
+  source: "CFA Level I — Equity Investments / Vernimmen"
+},
+{
+  id: "VAL-011", theme: "Valuation", sousTheme: "Cohérence des méthodes", difficulte: "Expert",
+  enonce: "Un analyste actualise des flux disponibles après remboursement de la dette (FCFE) au WACC. Quelle est la conséquence ?",
+  options: ["Aucune, les deux approches convergent", "La valeur obtenue est sous-estimée et méthodologiquement fausse", "Il obtient directement la valeur d'entreprise", "Cela revient à appliquer la méthode APV"],
+  reponse: 1,
+  explication: "Double comptage inversé : les FCFE sont déjà nets du service de la dette, tandis que le WACC intègre déjà un coût de la dette pondéré. On pénalise donc deux fois l'endettement, et le résultat n'est ni une VE ni une valeur de fonds propres. La règle est stricte : FCFF avec WACC, FCFE avec Ke.",
+  source: "Vernimmen — Cohérence flux / taux d'actualisation"
+},
+
+/* ---------- TRANSACTION SERVICES ---------- */
+{
+  id: "TS-001", theme: "Transaction Services", sousTheme: "Quality of Earnings", difficulte: "Débutant",
+  enonce: "Quel est l'objectif d'une revue de Quality of Earnings (QoE) ?",
+  options: ["Certifier les comptes de la cible", "Déterminer le niveau d'EBITDA récurrent et normatif de la cible", "Établir le business plan de l'acquéreur", "Calculer l'impôt dû sur la cession"],
+  reponse: 1,
+  explication: "La QoE ne certifie rien : elle retraite l'EBITDA publié pour aboutir à un résultat récurrent, normatif, soutenable — le seul auquel un multiple de valorisation peut légitimement s'appliquer. C'est, avec la revue de dette nette, l'une des deux analyses obligatoires de toute due diligence financière.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-002", theme: "Transaction Services", sousTheme: "Quality of Earnings", difficulte: "Intermédiaire",
+  enonce: "La cible a supporté 0,4 M€ d'honoraires d'avocats liés à un litige exceptionnel, comptabilisés en charges d'exploitation. Le deal se traite sur un multiple de 8x l'EBITDA. Quel est l'impact sur la valeur d'entreprise d'un retraitement de cet élément ?",
+  options: ["0,4 M€", "3,2 M€", "Aucun impact", "8,0 M€"],
+  reponse: 1,
+  explication: "0,4 × 8 = 3,2 M€ de valeur d'entreprise. C'est le réflexe fondamental du TS : en logique de multiple, un ajustement d'EBITDA est démultiplié. Un poste jugé négligeable en audit devient matériel en transaction — le seuil de matérialité n'est pas le même métier.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-003", theme: "Transaction Services", sousTheme: "Quality of Earnings", difficulte: "Avancé",
+  enonce: "Quelles sont les trois grandes familles d'ajustements de Quality of Earnings ?",
+  options: ["Fiscaux, sociaux, juridiques", "Comptables, de récurrence, de soutenabilité", "Bilanciels, hors-bilan, engagements", "Historiques, budgétaires, prévisionnels"],
+  reponse: 1,
+  explication: "Ajustements comptables (différences de référentiel, changements de méthode, corrections d'erreurs) ; ajustements de récurrence (éléments non récurrents logés dans l'EBITDA, ou récurrents logés en dessous) ; ajustements de soutenabilité (retraiter l'historique aux conditions économiques actuelles ou attendues : pro forma, perte d'un client majeur, changement réglementaire, coûts stand-alone).",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-004", theme: "Transaction Services", sousTheme: "Quality of Earnings", difficulte: "Avancé",
+  enonce: "En normes françaises, des gains et pertes de change opérationnels récurrents sont comptabilisés en résultat financier. Comment les traiter en QoE ?",
+  options: ["Les laisser en dessous de l'EBITDA, ils sont financiers par nature", "Les remonter dans l'EBITDA normatif", "Les retraiter en dette nette", "Les neutraliser complètement"],
+  reponse: 1,
+  explication: "La logique QoE est économique, pas comptable. Un flux récurrent et opérationnel par nature doit figurer dans l'EBITDA normatif quel que soit son classement au compte de résultat. Même raisonnement pour les escomptes de règlement ou pour certains postes du résultat exceptionnel en French GAAP.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-005", theme: "Transaction Services", sousTheme: "Quality of Earnings", difficulte: "Intermédiaire",
+  enonce: "Le management retraite chaque année des coûts de restructuration en les qualifiant de non récurrents. Quelle est la bonne réaction de l'équipe de due diligence ?",
+  options: ["Accepter le retraitement, la qualification relève du management", "Challenger : un élément qui revient tous les ans n'est pas non récurrent", "Retraiter le double du montant par prudence", "Basculer le montant en dette nette"],
+  reponse: 1,
+  explication: "Le test de récurrence se fait dans le temps, pas sur le libellé. Une société qui restructure chaque année a structurellement des coûts de restructuration : il faut alors retenir un niveau normatif récurrent plutôt que de tout éliminer. Vérifier systématiquement les exercices antérieurs est le réflexe attendu.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-006", theme: "Transaction Services", sousTheme: "Carve-out", difficulte: "Avancé",
+  enonce: "Une cible est détourée d'un groupe. Elle bénéficiait de services centraux facturés 0,5 M€ de management fees, mais leur reconstitution en autonome coûterait 1,2 M€. Quel traitement en QoE ?",
+  options: ["Aucun ajustement, les management fees disparaissent", "Ajouter 1,2 M€ de coûts et annuler les 0,5 M€ de fees, soit −0,7 M€ d'EBITDA", "Ajouter 1,2 M€ de coûts sans toucher aux fees", "Traiter l'écart en dette nette"],
+  reponse: 1,
+  explication: "L'analyse stand-alone consiste à présenter la cible telle qu'elle fonctionnera seule : on élimine les refacturations intragroupe qui disparaîtront et on intègre le coût réel de la structure autonome. Ici l'effet net est de −0,7 M€ sur l'EBITDA normatif. Attention : les synergies attendues par l'acquéreur ne sont pas reflétées en QoE, elles relèvent de son propre business case.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-007", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Débutant",
+  enonce: "Qu'appelle-t-on la dette nette reportée ?",
+  options: ["La dette nette après retraitements de due diligence", "La trésorerie moins les dettes financières telles que présentées par la cible", "La dette bancaire uniquement", "La dette nette figurant dans le SPA"],
+  reponse: 1,
+  explication: "La dette nette reportée est le point de départ : trésorerie − dettes financières, selon le référentiel comptable de la cible. La dette nette ajustée s'obtient en y intégrant les debt-like items identifiés en due diligence. L'écart entre les deux est souvent l'un des principaux leviers de négociation du prix.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-008", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Intermédiaire",
+  enonce: "Dans une offre « cash free / debt free », qui supporte économiquement la dette laissée dans la société ?",
+  options: ["L'acquéreur, qui la reprend au bilan", "Le vendeur, via une réduction du prix payé", "Les créanciers", "Elle est partagée à parts égales"],
+  reponse: 1,
+  explication: "L'acquéreur paie la valeur d'entreprise et déduit la dette nette pour établir le prix des titres : c'est donc le vendeur qui supporte la dette, en encaissant moins. Symétriquement, l'acquéreur paie le cash laissé dans la société. D'où des intérêts strictement opposés : l'acheteur pousse un maximum de postes en debt-like, le vendeur les conteste.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-009", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Intermédiaire",
+  enonce: "Une société de gestion locative encaisse pour le compte de ses clients ; une partie de sa trésorerie leur appartient. Comment traiter cette trésorerie en dette nette ajustée ?",
+  options: ["Comme du cash disponible, elle est au bilan", "Comme du trapped cash, à exclure du cash disponible", "Comme un élément de BFR sans effet", "Comme un engagement hors bilan"],
+  reponse: 1,
+  explication: "Le trapped cash est de la trésorerie qui figure au bilan mais que l'acquéreur ne peut pas mobiliser : fonds de tiers, encaisses minimales d'exploitation, cash bloqué à l'étranger par des restrictions de transfert ou une retenue à la source. On l'exclut du cash disponible, ce qui dégrade la dette nette et donc le prix des titres.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-010", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Avancé",
+  enonce: "La cible finance son BFR par de l'affacturage avec recours à hauteur de 6 M€. Quel traitement retenir ?",
+  options: ["Aucun, les créances sont sorties du bilan", "Traiter les 6 M€ en debt-like item", "Les ajouter au cash disponible", "Les retraiter en EBITDA"],
+  reponse: 1,
+  explication: "L'affacturage, le Dailly ou les effets escomptés non échus sont des encaissements anticipés : économiquement, c'est un financement court terme. Avec recours, le risque de non-paiement reste chez la cible, ce que l'acquéreur refuse de porter gratuitement. L'argument massue en négociation : le coût de l'affacturage est de nature financière, donc l'instrument est de la dette.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-011", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Avancé",
+  enonce: "Quelle est la règle de cohérence entre QoE et dette nette ?",
+  options: ["Tout debt-like item doit aussi être retraité en EBITDA", "Un passif dont le coût est déjà passé dans l'EBITDA de valorisation ne peut pas être compté en plus en dette", "Les deux analyses sont indépendantes", "La dette nette prime toujours sur la QoE"],
+  reponse: 1,
+  explication: "C'est l'erreur de double comptage la plus fréquente et la plus vite sanctionnée en entretien. Une obligation est soit reflétée dans l'EBITDA servant au multiple, soit traitée en dette nette — jamais les deux. Cas typiques : engagements de retraite, participation des salariés, provisions pour litiges.",
+  source: "PwC Deals — Ateliers QoE et Dette Nette"
+},
+{
+  id: "TS-012", theme: "Transaction Services", sousTheme: "BFR normatif", difficulte: "Expert",
+  enonce: "À quoi sert le mécanisme d'ajustement de prix sur le BFR ?",
+  options: ["À corriger les erreurs comptables de la cible", "À protéger l'acquéreur de la saisonnalité et d'une gestion opportuniste du BFR par le vendeur avant le closing", "À financer le BFR post-acquisition", "À calculer les synergies"],
+  reponse: 1,
+  explication: "Le prix est comparé à un BFR normatif : si le BFR livré au closing est inférieur au normatif, le prix est réduit ; s'il est supérieur, il est majoré. Cela neutralise la saisonnalité et décourage les manœuvres de dernière minute — retarder les paiements fournisseurs, accélérer les encaissements clients — qui gonfleraient artificiellement la trésorerie au closing.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-013", theme: "Transaction Services", sousTheme: "BFR normatif", difficulte: "Expert",
+  enonce: "En l'absence de tout mécanisme d'ajustement sur le BFR, à quelle période l'acquéreur a-t-il intérêt à closer ?",
+  options: ["Quand le BFR est au plus haut", "Quand le BFR est au plus bas", "En fin d'exercice comptable uniquement", "La date est sans effet sur le prix"],
+  reponse: 1,
+  explication: "BFR bas signifie besoin de financement bas, donc dette nette basse, donc prix des titres élevé... pour le vendeur. L'acquéreur, lui, veut closer quand le BFR est au plus haut : la dette nette est alors maximale et le prix des titres minimal. Il devra ensuite financer ce BFR, mais il l'aura payé moins cher. C'est précisément pour arbitrer ce jeu que le mécanisme d'ajustement existe.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-014", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Avancé",
+  enonce: "En French GAAP, les engagements de retraite ne sont pas provisionnés au bilan mais mentionnés en annexe. Quel traitement en due diligence ?",
+  options: ["Aucun, ils sont hors bilan", "Les considérer comme un debt-like item potentiel", "Les retraiter uniquement en EBITDA", "Les provisionner obligatoirement en IFRS puis les ignorer"],
+  reponse: 1,
+  explication: "Le hors-bilan est l'un des premiers endroits à regarder. Un engagement de retraite est une sortie de trésorerie future certaine dans son principe : il constitue un debt-like item classique. Le sujet est hautement discutable — statut de financement, pyramide des âges, charge déjà comptabilisée dans l'EBITDA — et se traite avec les spécialistes actuariels et RH.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-015", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Expert",
+  enonce: "En France, la participation des salariés bloquée cinq ans dans un fonds est le plus souvent traitée comment en dette nette ajustée ?",
+  options: ["En BFR d'exploitation", "En dette financière, car il s'agit d'un passif long terme portant intérêt", "Elle est systématiquement ignorée", "En capitaux propres"],
+  reponse: 1,
+  explication: "La quote-part bloquée sur cinq ans est un passif long terme rémunéré : elle s'apparente à de la dette financière. En revanche, la participation de l'exercice en cours, appelée à être décaissée à court terme, est généralement traitée en BFR et sa charge figure dans l'EBITDA. Découper correctement les deux évite un double comptage.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-016", theme: "Transaction Services", sousTheme: "Processus", difficulte: "Intermédiaire",
+  enonce: "Qu'est-ce qu'une VDD (vendor due diligence) ?",
+  options: ["Une due diligence commandée par l'acquéreur sur le vendeur", "Un rapport de due diligence commandé par le vendeur, mis à disposition des acquéreurs potentiels", "Un audit légal des comptes", "Une garantie d'actif et de passif"],
+  reponse: 1,
+  explication: "En VDD, le vendeur commande le rapport et le diffuse aux candidats, ce qui fluidifie le process d'enchères et lui permet de garder la main sur le calendrier. Les acquéreurs mandatent malgré tout leur propre équipe pour challenger les ajustements retenus par la VDD — c'est un exercice très courant en TS, et une bonne école pour apprendre à contester une position.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "TS-017", theme: "Transaction Services", sousTheme: "Mécanismes de prix", difficulte: "Avancé",
+  enonce: "Quelle est la différence principale entre un mécanisme de locked box et des completion accounts ?",
+  options: ["Le locked box fixe le prix sur un bilan antérieur au closing, sans ajustement postérieur", "Le locked box impose un audit après le closing", "Les completion accounts sont réservés aux sociétés cotées", "Il n'y a pas de différence en pratique"],
+  reponse: 0,
+  explication: "En locked box, le prix est arrêté sur un bilan de référence antérieur à la signature ; le risque économique est transféré à l'acquéreur dès cette date, protégé par des clauses de leakage interdisant les sorties de valeur au profit du vendeur. En completion accounts, un bilan est établi au closing et le prix est ajusté a posteriori sur la dette nette et le BFR. Le locked box est privilégié par les vendeurs : prix certain, sortie propre.",
+  source: "PwC Deals / pratique M&A"
+},
+{
+  id: "TS-018", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Avancé",
+  enonce: "La cible a sous-investi de 2 M€ par rapport à son niveau de capex de maintenance normatif sur les trois derniers exercices. Comment un acquéreur exigeant traite-t-il ce constat ?",
+  options: ["C'est une bonne nouvelle, la trésorerie est meilleure", "Comme un debt-like item ou un ajustement de soutenabilité de l'EBITDA", "Comme un produit exceptionnel", "Cela ne relève pas de la due diligence financière"],
+  reponse: 1,
+  explication: "Le sous-investissement est un rattrapage différé : l'acquéreur devra décaisser pour remettre l'outil à niveau. Selon le contexte, on le traite en debt-like item ou en normalisation de l'EBITDA via un niveau récurrent de coûts de maintenance. Ce qu'il ne faut surtout pas faire, c'est le compter des deux côtés.",
+  source: "PwC Deals — Ateliers QoE et Dette Nette"
+},
+{
+  id: "TS-019", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Intermédiaire",
+  enonce: "Quels coûts liés directement à la transaction sont typiquement traités en debt-like items ?",
+  options: ["Les salaires courants de la cible", "Les bonus de transaction accordés aux managers et les frais de rupture anticipée des financements existants", "Les dotations aux amortissements", "Le chiffre d'affaires du dernier trimestre"],
+  reponse: 1,
+  explication: "Ce sont des sorties de trésorerie one-off déclenchées par le deal et non reflétées dans l'EBITDA normatif : transaction bonus, golden parachutes, make-whole ou pénalités de remboursement anticipé, coûts de séparation dans un carve-out. Le débat porte alors sur celui qui les supporte — c'est un pur sujet de négociation.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+{
+  id: "TS-020", theme: "Transaction Services", sousTheme: "Dette nette", difficulte: "Expert",
+  enonce: "Quelle règle empirique permet de trancher rapidement si un poste doit être traité en dette ?",
+  options: ["Tout poste supérieur à 1 M€ est de la dette", "Si le coût du passif n'est pas reflété dans l'EBITDA utilisé pour valoriser, alors il doit être traité en dette", "Seuls les postes bancaires sont de la dette", "Tout poste hors bilan est de la dette"],
+  reponse: 1,
+  explication: "C'est la règle d'or de l'exercice. Elle garantit qu'aucune obligation n'est ni oubliée ni comptée deux fois : soit son coût pèse déjà sur l'EBITDA capitalisé par le multiple, soit il n'y figure pas et doit alors venir en déduction via la dette nette. La question n'a pas de réponse absolue — elle a une réponse négociée, mais qui doit être défendable.",
+  source: "PwC Deals — Atelier Dette Nette"
+},
+
+/* ---------- M&A ---------- */
+{
+  id: "MA-001", theme: "M&A", sousTheme: "Structuration", difficulte: "Débutant",
+  enonce: "Quelle est la différence essentielle entre un share deal et un asset deal ?",
+  options: ["Le share deal porte sur les titres de la société, l'asset deal sur des actifs et passifs identifiés", "Le share deal est réservé aux sociétés cotées", "L'asset deal ne nécessite pas de due diligence", "Il n'y a de différence que fiscale"],
+  reponse: 0,
+  explication: "En share deal, l'acquéreur reprend la société avec l'intégralité de son historique, y compris les passifs latents — d'où l'importance de la garantie d'actif et de passif. En asset deal, il choisit les actifs et passifs repris, ce qui isole le risque, mais l'opération est plus lourde juridiquement (transfert de contrats, d'autorisations, de salariés) et souvent moins favorable fiscalement au vendeur.",
+  source: "Vernimmen — Les modalités d'acquisition"
+},
+{
+  id: "MA-002", theme: "M&A", sousTheme: "Prix", difficulte: "Intermédiaire",
+  enonce: "À quoi sert une clause d'earn-out ?",
+  options: ["À garantir le passif fiscal", "À conditionner une partie du prix à la performance future de la cible", "À bloquer les titres du vendeur", "À financer l'acquisition"],
+  reponse: 1,
+  explication: "L'earn-out fait le pont entre deux visions du futur : le vendeur croit à sa trajectoire, l'acquéreur refuse de la payer d'avance. Une fraction du prix est donc conditionnée à l'atteinte d'objectifs. En pratique, tout se joue dans la définition de l'indicateur — un earn-out sur EBITDA post-intégration est une machine à contentieux, puisque l'acquéreur contrôle désormais la gestion.",
+  source: "Vernimmen — Le prix et ses ajustements"
+},
+{
+  id: "MA-003", theme: "M&A", sousTheme: "Relution / dilution", difficulte: "Intermédiaire",
+  enonce: "Une acquisition intégralement financée par dette est relutive sur le BPA de l'acquéreur si :",
+  options: ["Le multiple payé est supérieur à celui de l'acquéreur", "Le rendement des bénéfices de la cible dépasse le coût de la dette après impôt", "La cible est plus grande que l'acquéreur", "La cible verse un dividende"],
+  reponse: 1,
+  explication: "Le test : rendement des bénéfices de la cible (inverse du P/E payé) comparé au coût de la dette après impôt. Payer 12,5x (soit 8 % de rendement) une acquisition financée à 4 % après impôt est relutif. Point crucial en entretien : la relution n'est pas de la création de valeur — on peut être relutif en achetant un actif médiocre pas cher, et détruire de la valeur.",
+  source: "Vernimmen — Fusions-acquisitions et création de valeur"
+},
+{
+  id: "MA-004", theme: "M&A", sousTheme: "Synergies", difficulte: "Avancé",
+  enonce: "Entre synergies de coûts et synergies de revenus, lesquelles sont généralement valorisées avec la plus grande décote par le marché ?",
+  options: ["Les synergies de coûts", "Les synergies de revenus", "Les deux à l'identique", "Aucune n'est valorisée"],
+  reponse: 1,
+  explication: "Les synergies de coûts sont identifiables, chiffrables et largement sous le contrôle de l'acquéreur — suppression de doublons, achats mutualisés. Les synergies de revenus reposent sur des hypothèses de cross-selling et de comportement client : historiquement, elles se réalisent rarement au niveau annoncé. Un analyste sérieux les décote fortement, voire les exclut de son cas de base.",
+  source: "Vernimmen — Les synergies"
+},
+{
+  id: "MA-005", theme: "M&A", sousTheme: "Processus", difficulte: "Débutant",
+  enonce: "Quel est l'ordre chronologique classique dans un processus M&A ?",
+  options: ["SPA → NDA → LOI → closing", "NDA → LOI / offre indicative → due diligence → SPA → closing", "Due diligence → NDA → closing → SPA", "LOI → closing → due diligence → SPA"],
+  reponse: 1,
+  explication: "L'accord de confidentialité ouvre l'accès à l'information ; l'offre indicative ou lettre d'intention fixe les paramètres et l'exclusivité éventuelle ; la due diligence valide ou corrige les hypothèses ; le SPA formalise l'accord ; le closing réalise le transfert une fois les conditions suspensives levées. Le TS intervient à l'étape due diligence et alimente directement la négociation du SPA.",
+  source: "Pratique M&A"
+},
+{
+  id: "MA-006", theme: "M&A", sousTheme: "Comptabilité de l'acquisition", difficulte: "Avancé",
+  enonce: "Comment se calcule le goodwill lors d'une acquisition ?",
+  options: ["Prix payé moins capitaux propres comptables de la cible", "Prix payé moins juste valeur de l'actif net identifiable acquis", "Prix payé moins chiffre d'affaires", "Actif net réévalué moins dette nette"],
+  reponse: 1,
+  explication: "Goodwill = prix d'acquisition − juste valeur de l'actif net identifiable acquis, après allocation du prix (PPA) qui réévalue les actifs et reconnaît des incorporels jusque-là non comptabilisés (marques, relations clients, technologies). Le goodwill résiduel n'est pas amorti en IFRS mais soumis à un test de dépréciation annuel.",
+  source: "Vernimmen / IFRS 3"
+},
+{
+  id: "MA-007", theme: "M&A", sousTheme: "Contrat", difficulte: "Expert",
+  enonce: "Que permet une clause MAC (Material Adverse Change) dans un SPA ?",
+  options: ["Réviser le prix à la hausse", "Permettre à l'acquéreur de ne pas réaliser l'opération en cas de dégradation significative entre signing et closing", "Obliger le vendeur à réinvestir", "Garantir le financement bancaire"],
+  reponse: 1,
+  explication: "La clause MAC couvre la période entre signature et réalisation. Elle est en pratique très difficile à activer : les rédactions excluent généralement les événements sectoriels ou macroéconomiques généraux, pour ne viser que ce qui affecte spécifiquement la cible. Les contentieux post-Covid ont montré à quel point ces exclusions étaient déterminantes.",
+  source: "Pratique M&A / SPA"
+},
+{
+  id: "MA-008", theme: "M&A", sousTheme: "Garanties", difficulte: "Intermédiaire",
+  enonce: "Que couvre une garantie d'actif et de passif (GAP) ?",
+  options: ["Le risque de baisse du chiffre d'affaires futur", "Les passifs dont l'origine est antérieure au closing mais qui se révèlent après", "Le financement de l'acquisition", "La performance des synergies"],
+  reponse: 1,
+  explication: "La GAP protège l'acquéreur contre les passifs à fait générateur antérieur au closing révélés ensuite : redressement fiscal, contentieux prud'homal, litige environnemental. Elle est encadrée par un plafond, un seuil de déclenchement et une durée. Ce qu'elle ne couvre jamais : le risque d'exploitation futur, qui appartient désormais à l'acquéreur.",
+  source: "Pratique M&A / SPA"
+},
+
+/* ---------- PRIVATE EQUITY ---------- */
+{
+  id: "PE-001", theme: "Private Equity", sousTheme: "LBO", difficulte: "Débutant",
+  enonce: "Sur quel principe repose l'effet de levier d'un LBO ?",
+  options: ["Le coût de la dette après impôt est inférieur à la rentabilité économique de la cible", "La dette est gratuite", "La cible ne paie pas d'impôt", "Le multiple de sortie est toujours supérieur au multiple d'entrée"],
+  reponse: 0,
+  explication: "Tant que la rentabilité économique dépasse le coût de la dette après impôt, l'endettement amplifie la rentabilité des capitaux propres. L'effet joue symétriquement à la baisse : c'est pourquoi les fonds ciblent des sociétés à cash-flows prévisibles, faible intensité capitalistique et position concurrentielle défendable.",
+  source: "Vernimmen — Le LBO"
+},
+{
+  id: "PE-002", theme: "Private Equity", sousTheme: "Performance", difficulte: "Intermédiaire",
+  enonce: "Un fonds investit 100 et sort à 250 au bout de 5 ans. Quels sont le MoIC et le TRI approximatif ?",
+  options: ["MoIC 2,5x et TRI ~20 %", "MoIC 2,5x et TRI ~30 %", "MoIC 1,5x et TRI ~20 %", "MoIC 2,5x et TRI ~50 %"],
+  reponse: 0,
+  explication: "MoIC = 250/100 = 2,5x. TRI = 2,5^(1/5) − 1 = 20,1 %. Repères à connaître par cœur : 2x en 3 ans ≈ 26 %, 2x en 5 ans ≈ 15 %, 3x en 5 ans ≈ 25 %. Le MoIC ignore le temps, le TRI y est très sensible — d'où l'intérêt des fonds pour les sorties rapides et les dividend recaps.",
+  source: "CFA Level II — Alternative Investments / pratique PE"
+},
+{
+  id: "PE-003", theme: "Private Equity", sousTheme: "Structuration", difficulte: "Intermédiaire",
+  enonce: "Quel niveau de levier d'entrée est courant sur un LBO mid-market européen d'une société aux cash-flows stables ?",
+  options: ["1 à 2x l'EBITDA", "3 à 5x l'EBITDA", "8 à 10x l'EBITDA", "15x l'EBITDA"],
+  reponse: 1,
+  explication: "L'ordre de grandeur usuel est de 3 à 5x l'EBITDA de dette senior sur le mid-market, davantage sur des large caps très défensifs ou avec de l'unitranche. Ce qui compte en entretien n'est pas le chiffre exact mais l'ordre de grandeur et le raisonnement : capacité de service de la dette, headroom sur les covenants, sensibilité à un retournement.",
+  source: "Pratique leveraged finance"
+},
+{
+  id: "PE-004", theme: "Private Equity", sousTheme: "Création de valeur", difficulte: "Avancé",
+  enonce: "Quelles sont les trois sources de création de valeur d'un LBO ?",
+  options: ["Croissance de l'EBITDA, expansion du multiple, désendettement", "Fiscalité, dividendes, cession d'actifs", "Croissance du CA, réduction des effectifs, refinancement", "Synergies, goodwill, provisions"],
+  reponse: 0,
+  explication: "Décomposition standard du value bridge. La croissance de l'EBITDA est la seule source véritablement opérationnelle et défendable ; le désendettement est mécanique dès lors que la société génère du cash ; l'expansion de multiple dépend largement du marché et relève souvent de la chance. Savoir décomposer une performance passée sur ces trois axes est un exercice classique en entretien de fonds.",
+  source: "Pratique PE — value creation bridge"
+},
+{
+  id: "PE-005", theme: "Private Equity", sousTheme: "Dette", difficulte: "Avancé",
+  enonce: "Classer par seniorité décroissante : mezzanine, dette senior, capitaux propres.",
+  options: ["Capitaux propres > dette senior > mezzanine", "Dette senior > mezzanine > capitaux propres", "Mezzanine > dette senior > capitaux propres", "Dette senior > capitaux propres > mezzanine"],
+  reponse: 1,
+  explication: "La dette senior est remboursée en premier et donc la moins chère ; la mezzanine, subordonnée et souvent assortie de warrants, exige 10 à 15 % ; les capitaux propres sont servis en dernier et supportent le risque maximal, avec l'espérance de rendement la plus élevée. La rémunération suit strictement le rang dans la structure de capital.",
+  source: "Vernimmen — Les financements structurés"
+},
+{
+  id: "PE-006", theme: "Private Equity", sousTheme: "Covenants", difficulte: "Expert",
+  enonce: "Que mesure un covenant de leverage ratio dans une documentation de crédit LBO ?",
+  options: ["Dette nette / EBITDA", "EBITDA / charges d'intérêts", "Dette nette / capitaux propres", "Free cash flow / service de la dette"],
+  reponse: 0,
+  explication: "Le leverage ratio rapporte la dette nette à l'EBITDA, avec un seuil décroissant dans le temps à mesure du désendettement prévu. Les autres covenants usuels : interest cover (EBITDA / intérêts), DSCR (cash flow / service de la dette) et capex maximum. Un bris de covenant ouvre la porte à l'exigibilité anticipée — donc à une renégociation où le prêteur a la main.",
+  source: "Pratique leveraged finance"
+},
+{
+  id: "PE-007", theme: "Private Equity", sousTheme: "Management package", difficulte: "Expert",
+  enonce: "À quoi sert un mécanisme de ratchet dans un management package ?",
+  options: ["À garantir un salaire minimum aux dirigeants", "À augmenter la part de plus-value revenant au management au-delà de seuils de performance", "À protéger le fonds contre la dilution", "À bloquer les titres pendant cinq ans"],
+  reponse: 1,
+  explication: "Le ratchet fait varier la quote-part de plus-value du management selon l'atteinte de seuils de TRI ou de multiple pour le fonds. Combiné au sweet equity — des titres souscrits à des conditions préférentielles —, il aligne les intérêts. Le risque à surveiller est fiscal : si l'administration requalifie le gain en salaire, l'économie du package s'effondre.",
+  source: "Pratique PE France"
+},
+{
+  id: "PE-008", theme: "Private Equity", sousTheme: "LBO", difficulte: "Avancé",
+  enonce: "Pourquoi un fonds structure-t-il l'acquisition via une holding endettée plutôt qu'en s'endettant au niveau de la cible ?",
+  options: ["Pour éviter toute due diligence", "Pour isoler la dette d'acquisition et faire remonter les flux de la cible par dividendes, en utilisant l'intégration fiscale", "Parce que la loi française l'impose", "Pour supprimer les covenants"],
+  reponse: 1,
+  explication: "La holding porte la dette d'acquisition et la rembourse grâce aux dividendes remontés de la cible. L'intégration fiscale permet, sous conditions, d'imputer les charges financières de la holding sur le résultat imposable du groupe. Attention aux limites françaises : amendement Charasse, plafonnement de la déductibilité des charges financières, et l'interdiction pour la cible de financer l'acquisition de ses propres titres.",
+  source: "Vernimmen — Le montage d'un LBO"
+},
+
+/* ---------- VENTURE CAPITAL ---------- */
+{
+  id: "VC-001", theme: "Venture Capital", sousTheme: "Valorisation", difficulte: "Débutant",
+  enonce: "Une startup lève 2 M€ sur une valorisation pre-money de 8 M€. Quelle est la valorisation post-money et le pourcentage cédé ?",
+  options: ["10 M€ et 20 %", "8 M€ et 25 %", "10 M€ et 25 %", "6 M€ et 20 %"],
+  reponse: 0,
+  explication: "Post-money = pre-money + montant levé = 8 + 2 = 10 M€. Part de l'investisseur = 2/10 = 20 %. L'erreur classique consiste à diviser par le pre-money (2/8 = 25 %), ce qui surestime la dilution. Toujours vérifier laquelle des deux valeurs est annoncée : l'écart change directement la table de capitalisation.",
+  source: "Pratique VC"
+},
+{
+  id: "VC-002", theme: "Venture Capital", sousTheme: "Dilution", difficulte: "Intermédiaire",
+  enonce: "Un fondateur détient 60 %. La société lève un tour diluant l'ensemble des actionnaires existants de 25 %. Quelle est sa participation après l'opération ?",
+  options: ["35 %", "45 %", "50 %", "40 %"],
+  reponse: 1,
+  explication: "60 % × (1 − 0,25) = 45 %. La dilution s'applique proportionnellement à tous les actionnaires existants. Le réflexe utile est de raisonner en nombre de titres plutôt qu'en pourcentages, notamment dès qu'interviennent des instruments convertibles ou un pool d'options.",
+  source: "Pratique VC"
+},
+{
+  id: "VC-003", theme: "Venture Capital", sousTheme: "Instruments", difficulte: "Intermédiaire",
+  enonce: "Qu'est-ce qu'un BSA AIR ?",
+  options: ["Une obligation d'État", "Un instrument permettant d'investir immédiatement avec une valorisation fixée lors d'un tour ultérieur", "Une option d'achat réservée aux salariés", "Une garantie bancaire"],
+  reponse: 1,
+  explication: "Le BSA AIR (Accord d'Investissement Rapide) est l'équivalent français du SAFE américain : l'investisseur verse les fonds tout de suite, la conversion en titres intervient au tour suivant sur la base de sa valorisation, généralement avec une décote et un plafond. Cela évite de négocier une valorisation sur une société trop jeune pour être valorisée.",
+  source: "Pratique VC France"
+},
+{
+  id: "VC-004", theme: "Venture Capital", sousTheme: "Term sheet", difficulte: "Avancé",
+  enonce: "Une liquidation preference 1x non-participating donne à l'investisseur le droit de :",
+  options: ["Récupérer 1x sa mise puis participer au partage du solde au prorata", "Recevoir le plus élevé entre 1x sa mise et sa quote-part au prorata", "Recevoir 1x sa mise uniquement en cas de faillite", "Doubler sa mise à la sortie"],
+  reponse: 1,
+  explication: "Non-participating signifie que l'investisseur choisit : soit il récupère sa mise en priorité, soit il convertit et prend sa quote-part — mais pas les deux. La version participating (1x puis partage du solde) est nettement plus agressive. Sur une sortie médiocre, l'écart entre les deux clauses détermine à lui seul ce qui reste aux fondateurs.",
+  source: "Pratique VC — term sheet"
+},
+{
+  id: "VC-005", theme: "Venture Capital", sousTheme: "Cap table", difficulte: "Avancé",
+  enonce: "Un investisseur exige la création d'un pool de BSPCE de 10 % « pre-money ». Qui supporte cette dilution ?",
+  options: ["L'investisseur seul", "Les fondateurs et actionnaires existants seuls", "Tous les actionnaires au prorata après le tour", "Les futurs salariés"],
+  reponse: 1,
+  explication: "Un pool constitué en pre-money est intégré à la valorisation d'avant tour : il dilue exclusivement les actionnaires existants. Constitué en post-money, il diluerait tout le monde, investisseur compris. C'est un point de négociation qui passe souvent inaperçu et qui peut coûter plusieurs points de capital aux fondateurs.",
+  source: "Pratique VC — option pool shuffle"
+},
+{
+  id: "VC-006", theme: "Venture Capital", sousTheme: "Term sheet", difficulte: "Expert",
+  enonce: "Quelle différence entre une clause anti-dilution full ratchet et weighted average ?",
+  options: ["Le full ratchet réajuste le prix de conversion au prix du nouveau tour, la weighted average pondère par les volumes émis", "La weighted average est plus favorable à l'investisseur", "Le full ratchet ne s'applique qu'aux fondateurs", "Les deux sont équivalentes"],
+  reponse: 0,
+  explication: "En full ratchet, une émission à prix inférieur repositionne le prix de conversion de l'investisseur au nouveau prix, quel que soit le volume émis — très punitif pour les fondateurs. La weighted average pondère par les montants et le nombre de titres, ce qui est beaucoup plus équilibré et constitue le standard de marché.",
+  source: "Pratique VC — term sheet"
+},
+{
+  id: "VC-007", theme: "Venture Capital", sousTheme: "Métriques", difficulte: "Débutant",
+  enonce: "Une startup dispose de 1,8 M€ de trésorerie et brûle 150 k€ par mois. Quel est son runway ?",
+  options: ["6 mois", "12 mois", "18 mois", "24 mois"],
+  reponse: 1,
+  explication: "1 800 / 150 = 12 mois. Le runway est la métrique de survie : en dessous de 6 mois, la position de négociation en levée s'effondre. La règle usuelle est de relancer un tour lorsqu'il reste 9 à 12 mois de trésorerie, un process de levée prenant rarement moins de six mois.",
+  source: "Pratique VC"
+},
+
+/* ---------- RESTRUCTURING ---------- */
+{
+  id: "RX-001", theme: "Restructuring", sousTheme: "Droit des entreprises en difficulté", difficulte: "Débutant",
+  enonce: "Comment se définit l'état de cessation des paiements en droit français ?",
+  options: ["Un résultat net négatif deux exercices de suite", "L'impossibilité de faire face au passif exigible avec l'actif disponible", "Des capitaux propres inférieurs à la moitié du capital social", "Un défaut de paiement d'une seule échéance bancaire"],
+  reponse: 1,
+  explication: "La cessation des paiements est une notion strictement de trésorerie : passif exigible contre actif disponible, indépendamment du résultat comptable. Le dirigeant doit en faire la déclaration dans les 45 jours, sauf demande de conciliation. Confondre cessation des paiements et pertes comptables est l'erreur la plus fréquente sur ce sujet.",
+  source: "Code de commerce, art. L631-1 / DSCG UE1"
+},
+{
+  id: "RX-002", theme: "Restructuring", sousTheme: "Procédures", difficulte: "Intermédiaire",
+  enonce: "Quelle est la différence entre les procédures amiables (mandat ad hoc, conciliation) et les procédures collectives ?",
+  options: ["Les procédures amiables sont confidentielles et supposent l'accord des créanciers concernés", "Les procédures amiables sont réservées aux sociétés cotées", "Les procédures collectives sont confidentielles", "Il n'y a aucune différence de publicité"],
+  reponse: 0,
+  explication: "Mandat ad hoc et conciliation sont confidentiels, volontaires et reposent sur la négociation avec les créanciers appelés à la table — ce qui préserve la relation commerciale. Sauvegarde, redressement et liquidation sont publics, s'imposent à tous les créanciers et emportent des effets automatiques comme la suspension des poursuites.",
+  source: "Code de commerce / DSCG UE1"
+},
+{
+  id: "RX-003", theme: "Restructuring", sousTheme: "Négociation", difficulte: "Avancé",
+  enonce: "En quoi consiste un debt-to-equity swap ?",
+  options: ["Un rachat de dette avec décote par la société", "La conversion de créances en capital, diluant les actionnaires existants", "Un rééchelonnement des échéances", "Une cession d'actifs pour rembourser la dette"],
+  reponse: 1,
+  explication: "Les créanciers abandonnent tout ou partie de leur créance en échange de titres : le bilan se désendette et le contrôle bascule fréquemment vers les créanciers, les actionnaires historiques étant massivement dilués voire effacés. C'est l'outil central des restructurations lourdes lorsque la société est viable opérationnellement mais surendettée.",
+  source: "Vernimmen — Les restructurations financières"
+},
+{
+  id: "RX-004", theme: "Restructuring", sousTheme: "Financement", difficulte: "Avancé",
+  enonce: "Quel avantage confère le privilège de conciliation (« new money ») en droit français ?",
+  options: ["Une exonération fiscale", "Un rang privilégié de remboursement pour les apporteurs d'argent frais en cas de procédure ultérieure", "Une garantie de l'État", "Un taux d'intérêt plafonné"],
+  reponse: 1,
+  explication: "Le privilège de new money classe les apporteurs de trésorerie nouvelle en conciliation homologuée avant la plupart des créanciers antérieurs si une procédure collective suit. Sans ce dispositif, personne n'accepterait de financer une société en difficulté : c'est ce qui rend le sauvetage économiquement possible.",
+  source: "Code de commerce, art. L611-11"
+},
+{
+  id: "RX-005", theme: "Restructuring", sousTheme: "Procédures", difficulte: "Expert",
+  enonce: "Quelle condition préalable est nécessaire pour ouvrir une sauvegarde accélérée ?",
+  options: ["Être en cessation des paiements depuis plus de 45 jours", "Avoir engagé une procédure de conciliation et disposer d'un projet de plan soutenu par une majorité de créanciers", "Être coté en bourse", "Avoir obtenu l'accord unanime des créanciers"],
+  reponse: 1,
+  explication: "La sauvegarde accélérée prolonge une conciliation : elle sert à imposer un accord déjà largement négocié à une minorité de créanciers récalcitrants, dans un délai très court. C'est un outil de coercition contrôlée qui suppose que l'essentiel du travail de négociation ait déjà eu lieu en amont, sous couvert de confidentialité.",
+  source: "Code de commerce, art. L628-1"
+},
+
+/* ---------- COMPTABILITÉ & ANALYSE FINANCIÈRE ---------- */
+{
+  id: "CF-001", theme: "Comptabilité & analyse", sousTheme: "Soldes de gestion", difficulte: "Débutant",
+  enonce: "En contexte français, quelle affirmation est correcte ?",
+  options: ["EBIT et résultat d'exploitation sont strictement identiques", "L'EBIT n'existe pas en plan comptable français ; le résultat d'exploitation en est un proxy usuel mais imparfait", "L'EBITDA est un solde du plan comptable général", "L'EBE inclut les dotations aux amortissements"],
+  reponse: 1,
+  explication: "EBIT et EBITDA sont des notions anglo-saxonnes sans définition en PCG. Le résultat d'exploitation sert de proxy mais l'écart est réel : traitement du résultat exceptionnel, de la participation, des dotations et reprises de provisions. En transaction, on reconstruit l'EBIT comme résultat net + charges financières + impôt — et on documente la définition retenue dans le glossaire du rapport.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "CF-002", theme: "Comptabilité & analyse", sousTheme: "Normes", difficulte: "Intermédiaire",
+  enonce: "Quel est l'effet du passage à IFRS 16 sur l'EBITDA et la dette nette d'une société fortement locataire ?",
+  options: ["EBITDA en hausse et dette nette en hausse", "EBITDA en baisse et dette nette en baisse", "EBITDA en hausse et dette nette inchangée", "Aucun effet sur les deux"],
+  reponse: 0,
+  explication: "IFRS 16 fait disparaître la charge de loyer de l'exploitation : elle est remplacée par un amortissement du droit d'utilisation et une charge d'intérêts. L'EBITDA augmente mécaniquement et une dette de loyer apparaît au bilan. D'où l'obligation absolue de comparer des multiples pre-IFRS 16 avec des multiples pre-IFRS 16 : sinon la comparaison n'a aucun sens.",
+  source: "IFRS 16 / pratique valorisation"
+},
+{
+  id: "CF-003", theme: "Comptabilité & analyse", sousTheme: "BFR", difficulte: "Débutant",
+  enonce: "Comment se calcule le BFR d'exploitation dans sa forme simplifiée ?",
+  options: ["Stocks + créances clients − dettes fournisseurs", "Actif circulant − trésorerie", "Capitaux propres − immobilisations", "Créances clients − stocks"],
+  reponse: 0,
+  explication: "BFR = stocks + créances clients − dettes fournisseurs, auxquels s'ajoutent les autres créances et dettes d'exploitation. Il traduit le décalage entre encaissements et décaissements du cycle. Un BFR négatif — grande distribution, restauration — signifie que les clients financent l'activité : c'est un modèle économique très recherché par les fonds.",
+  source: "Vernimmen — Le besoin en fonds de roulement"
+},
+{
+  id: "CF-004", theme: "Comptabilité & analyse", sousTheme: "Ratios", difficulte: "Avancé",
+  enonce: "DSO 60 jours, DIO 45 jours, DPO 50 jours. Quel est le cycle de conversion de trésorerie ?",
+  options: ["155 jours", "55 jours", "65 jours", "35 jours"],
+  reponse: 1,
+  explication: "Cycle de conversion = DSO + DIO − DPO = 60 + 45 − 50 = 55 jours. C'est la durée pendant laquelle la société finance son cycle sur ses propres ressources. Toute amélioration libère du cash immédiatement — d'où l'attention des fonds à ce levier dans les 100 premiers jours post-acquisition.",
+  source: "CFA Level I — Financial Statement Analysis"
+},
+{
+  id: "CF-005", theme: "Comptabilité & analyse", sousTheme: "Provisions", difficulte: "Avancé",
+  enonce: "Une reprise de provision sans utilisation vient gonfler le résultat d'exploitation de l'exercice. Quel traitement en QoE ?",
+  options: ["La conserver, c'est un produit d'exploitation", "La retraiter, elle n'est pas récurrente et ne génère aucun cash", "L'ajouter en dette nette", "La reclasser en chiffre d'affaires"],
+  reponse: 1,
+  explication: "Une reprise sans utilisation est un pur produit comptable : aucun encaissement, aucune récurrence. Elle est retraitée en QoE. Il faut par ailleurs analyser en détail tous les mouvements de provisions — ils révèlent souvent des lissages de résultat, et leur dénouement futur en trésorerie relève de l'analyse de dette nette.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "CF-006", theme: "Comptabilité & analyse", sousTheme: "Cash flow", difficulte: "Intermédiaire",
+  enonce: "Comment se construit le free cash flow to firm à partir de l'EBITDA ?",
+  options: ["EBITDA − impôt normatif sur l'EBIT − variation de BFR − capex", "EBITDA − charges d'intérêts − dividendes", "EBITDA − amortissements", "EBITDA + variation de BFR + capex"],
+  reponse: 0,
+  explication: "FCFF = EBITDA − impôt théorique calculé sur l'EBIT − variation du BFR − capex. L'impôt se calcule sur l'EBIT et non sur l'EBITDA, et hors effet de la dette : le FCFF doit rester indépendant de la structure financière puisqu'il sera actualisé au WACC. Placer les charges d'intérêts dans un FCFF est une faute classique et immédiatement repérée.",
+  source: "Vernimmen — Les flux de trésorerie disponibles"
+},
+{
+  id: "CF-007", theme: "Comptabilité & analyse", sousTheme: "Soldes de gestion", difficulte: "Avancé",
+  enonce: "Dans le calcul de l'EBITDA, quels amortissements et dépréciations doit-on retenir ?",
+  options: ["Toutes les dotations, y compris aux provisions pour risques", "Uniquement les amortissements des immobilisations", "Uniquement les dépréciations de stocks", "Toutes les charges non décaissées"],
+  reponse: 1,
+  explication: "Le D&A de l'EBITDA porte sur les seules immobilisations. Y intégrer les dotations et reprises de provisions pour risques et charges est une erreur fréquente qui fausse la comparabilité entre exercices et entre sociétés. En transaction, chaque poste doit être identifié individuellement plutôt que repris en bloc.",
+  source: "PwC Deals — Atelier Quality of Earnings"
+},
+{
+  id: "CF-008", theme: "Comptabilité & analyse", sousTheme: "Analyse", difficulte: "Expert",
+  enonce: "Une société affiche une croissance d'EBITDA de 15 % et une trésorerie d'exploitation en baisse. Quelle explication faut-il investiguer en priorité ?",
+  options: ["Une hausse des dividendes", "Une dégradation du BFR, notamment un allongement du DSO ou une accumulation de stocks", "Une baisse du taux d'impôt", "Une augmentation de capital"],
+  reponse: 1,
+  explication: "L'écart entre résultat et trésorerie se loge d'abord dans le BFR. Un DSO qui s'allonge peut signaler du channel stuffing, une clientèle qui se dégrade ou une reconnaissance de revenu agressive ; des stocks qui gonflent peuvent annoncer une future dépréciation. C'est le premier signal d'alerte de toute analyse de qualité des résultats — profit ≠ cash.",
+  source: "PwC Deals / analyse financière"
+}
+
+];
+
+
+/* ============================================================
+   STOCKAGE — fonctionne en artifact, en local et en ligne.
+   ============================================================ */
+const KEY = "deal.progress.v1";
+const mem = {};
+const Store = {
+  async get(k){
+    try{ if(window.storage){ const r = await window.storage.get(k); if(r&&r.value) return JSON.parse(r.value); } }catch(e){}
+    try{ const v = localStorage.getItem(k); if(v) return JSON.parse(v); }catch(e){}
+    return mem[k] || null;
+  },
+  async set(k,v){
+    mem[k]=v;
+    try{ if(window.storage){ await window.storage.set(k, JSON.stringify(v)); return; } }catch(e){}
+    try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+  }
+};
+
+/* ============================================================
+   ÉTAT
+   ============================================================ */
+const DIFFS = ["Débutant","Intermédiaire","Avancé","Expert"];
+const THEMES = [...new Set(QUESTIONS.map(q=>q.theme))];
+const INTERVALS = [0,1,3,7,21,60];           // jours par palier de mémorisation
+const GRADES = [
+  {max:4,  name:"Stagiaire", desc:"Les fondamentaux ne sont pas encore posés. Reprendre le bridge VE/VFP et les soldes de gestion."},
+  {max:8,  name:"Junior",    desc:"La base est là, la technique manque. Travailler les retraitements et les mécanismes de prix."},
+  {max:12, name:"Senior",    desc:"Niveau solide. Les écarts se font sur les sujets de jugement : dette nette, BFR normatif."},
+  {max:16, name:"Manager",   desc:"Bon niveau technique. Il reste les arbitrages fins et les cas limites."},
+  {max:19, name:"Partner",   desc:"Maîtrise sérieuse, y compris sur les points les plus discutables."},
+  {max:20, name:"Chairman",  desc:"Sans faute."}
+];
+
+let progress = {};
+let S = { mode:null, queue:[], i:0, answers:[], locked:false };
+let cfg = { themes:new Set(), diffs:new Set(), len:15 };
+
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const today = () => Math.floor(Date.now()/86400000);
+const rec = id => progress[id] || {box:0, due:0, seen:0, ok:0, ko:0};
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function go(id){
+  $$(".screen").forEach(s=>s.classList.remove("active"));
+  $("#s-"+id).classList.add("active");
+  window.scrollTo({top:0,behavior:"instant"});
+  if(id==="home")  renderHome();
+  if(id==="stats") renderStats();
+}
+
+/* ============================================================
+   ACCUEIL
+   ============================================================ */
+function renderHome(){
+  const ids = Object.keys(progress);
+  const seen = ids.length;
+  const ok = ids.reduce((s,k)=>s+progress[k].ok,0);
+  const tot = ids.reduce((s,k)=>s+progress[k].ok+progress[k].ko,0);
+  const due = dueQuestions().length;
+  $("#st-seen").textContent = seen;
+  $("#st-rate").textContent = tot ? Math.round(ok/tot*100)+"%" : "—";
+  $("#st-due").textContent  = due;
+  $("#review-badge").textContent = due + (due>1?" dues":" due");
+  $("#mode-review").disabled = due === 0;
+}
+
+function dueQuestions(){
+  const t = today();
+  return QUESTIONS.filter(q => progress[q.id] && progress[q.id].due <= t && progress[q.id].box < 5);
+}
+
+/* ============================================================
+   CONFIGURATION
+   ============================================================ */
+function renderConfig(){
+  const mk = (host, items, set, counter) => {
+    host.innerHTML = "";
+    items.forEach(v=>{
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.setAttribute("aria-pressed", set.has(v));
+      const n = counter ? QUESTIONS.filter(counter(v)).length : 0;
+      b.innerHTML = v + (counter ? ` <span class="n">${n}</span>` : "");
+      b.onclick = ()=>{ set.has(v) ? set.delete(v) : set.add(v); b.setAttribute("aria-pressed", set.has(v)); updatePool(); };
+      host.appendChild(b);
+    });
+  };
+  mk($("#chips-theme"), THEMES, cfg.themes, v=>q=>q.theme===v);
+  mk($("#chips-diff"),  DIFFS,  cfg.diffs,  v=>q=>q.difficulte===v);
+
+  const lens = [10,15,25,"Tout"];
+  $("#chips-len").innerHTML = "";
+  lens.forEach(v=>{
+    const b = document.createElement("button");
+    b.className="chip"; b.textContent = v==="Tout"?"Tout":v+" questions";
+    b.setAttribute("aria-pressed", cfg.len===v);
+    b.onclick = ()=>{ cfg.len=v; renderConfig(); updatePool(); };
+    $("#chips-len").appendChild(b);
+  });
+  updatePool();
+}
+
+function pool(){
+  return QUESTIONS.filter(q =>
+    (cfg.themes.size===0 || cfg.themes.has(q.theme)) &&
+    (cfg.diffs.size===0  || cfg.diffs.has(q.difficulte))
+  );
+}
+function updatePool(){
+  const n = pool().length;
+  $("#pool-count").textContent = n;
+  $("#btn-start").disabled = n === 0;
+}
+
+/* ============================================================
+   SESSION
+   ============================================================ */
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+
+function start(mode){
+  S = { mode, queue:[], i:0, answers:[], locked:false };
+  if(mode==="deal")        S.queue = shuffle(QUESTIONS).slice(0,20);
+  else if(mode==="review") S.queue = shuffle(dueQuestions()).slice(0,20);
+  else {
+    const p = shuffle(pool());
+    S.queue = cfg.len==="Tout" ? p : p.slice(0, cfg.len);
+  }
+  if(!S.queue.length) return;
+  go("quiz"); renderQ();
+}
+
+function renderQ(){
+  const q = S.queue[S.i];
+  S.locked = false;
+  $("#q-fill").style.width = (S.i / S.queue.length * 100) + "%";
+  $("#q-count").textContent = `${S.i+1} / ${S.queue.length}`;
+  $("#q-meta").innerHTML =
+    `<span class="tag">${q.theme}</span>` +
+    `<span class="tag">${q.sousTheme}</span>` +
+    `<span class="tag diff">${q.difficulte}</span>`;
+  $("#q-text").textContent = q.enonce;
+
+  // Les propositions sont mélangées à chaque affichage : la position
+  // de la bonne réponse dans le fichier de questions n'a donc aucune
+  // importance, et aucun biais de position ne peut s'installer.
+  S.order = shuffle(q.options.map((_,k)=>k));
+
+  const host = $("#q-opts"); host.innerHTML = "";
+  S.order.forEach((orig,pos)=>{
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = `<span class="opt-k">${pos+1}</span><span>${q.options[orig]}</span>`;
+    b.onclick = ()=>answer(orig);
+    host.appendChild(b);
+  });
+
+  $("#btn-idk").style.display = "block";
+  $("#q-fb").innerHTML = "";
+  $("#q-foot").style.display = "none";
+  $("#btn-next").textContent = (S.i === S.queue.length-1) ? "Voir le résultat" : "Question suivante";
+}
+
+function answer(choice){
+  if(S.locked) return;
+  S.locked = true;
+  const q = S.queue[S.i];
+  const good = choice === q.reponse;
+  S.answers.push({id:q.id, choice, good});
+  grade(q.id, good);
+
+  $("#btn-idk").style.display = "none";
+  const btns = $$("#q-opts .opt");
+  btns.forEach((b,pos)=>{
+    b.disabled = true;
+    const orig = S.order[pos];                       // position affichée -> index d'origine
+    if(orig === q.reponse) b.classList.add("good");
+    else if(orig === choice && choice !== -1) b.classList.add("bad");
+  });
+
+  // En mode Deal., aucune correction avant la fin.
+  if(S.mode !== "deal"){
+    const cls = choice === -1 ? "na" : (good ? "ok" : "ko");
+    const head = choice === -1 ? "Non répondu" : (good ? "Correct" : "Incorrect");
+    $("#q-fb").innerHTML =
+      `<div class="fb ${cls}"><div class="fb-h">${head}</div>` +
+      `<div class="fb-b">${q.explication}</div>` +
+      `<div class="fb-s">Source — ${q.source}</div></div>`;
+  }
+  $("#q-foot").style.display = "flex";
+  $("#btn-next").focus();
+}
+
+function next(){
+  S.i++;
+  if(S.i >= S.queue.length){ finish(); return; }
+  renderQ();
+}
+
+/* ---- répétition espacée ---- */
+function grade(id, good){
+  const r = rec(id);
+  r.seen++;
+  if(good){ r.ok++; r.box = Math.min(r.box+1, 5); }
+  else    { r.ko++; r.box = 0; }
+  r.due = today() + INTERVALS[r.box];
+  progress[id] = r;
+  Store.set(KEY, progress);
+}
+
+/* ============================================================
+   RÉSULTAT
+   ============================================================ */
+function finish(){
+  const good = S.answers.filter(a=>a.good).length;
+  const total = S.queue.length;
+  const score = S.mode==="deal" ? good : Math.round(good/total*20);
+  const grade_ = GRADES.find(g => score <= g.max);
+
+  $("#r-score").innerHTML = `${good}<small>/${total}</small>`;
+  $("#r-rank").textContent = grade_.name;
+  $("#r-rank-d").textContent = grade_.desc;
+
+  $("#r-ladder").innerHTML = GRADES.map((g,i)=>{
+    const lo = i===0 ? 0 : GRADES[i-1].max+1;
+    const label = lo===g.max ? `${g.max}` : `${lo}–${g.max}`;
+    return `<div class="rung ${g.name===grade_.name?"on":""}"><span>${g.name}</span><span class="r-s">${label}</span></div>`;
+  }).join("");
+  $("#r-ladder").style.display = S.mode==="deal" ? "block" : "none";
+
+  const missed = S.answers.filter(a=>!a.good);
+  $("#r-review-h").style.display = missed.length ? "block" : "none";
+  $("#r-review").innerHTML = missed.length ? missed.map(a=>{
+    const q = QUESTIONS.find(x=>x.id===a.id);
+    const yours = a.choice === -1 ? "Non répondu" : q.options[a.choice];
+    return `<div class="review">
+      <div class="review-q">${q.enonce}</div>
+      <div class="review-l yours"><b>Vous</b><span>${yours}</span></div>
+      <div class="review-l right"><b>Réponse</b><span>${q.options[q.reponse]}</span></div>
+      <div class="review-e">${q.explication}</div>
+      <div class="fb-s">Source — ${q.source}</div>
+    </div>`;
+  }).join("") : `<div class="empty">Aucune erreur sur cette session.</div>`;
+
+  go("result");
+}
+
+/* ============================================================
+   PROGRESSION
+   ============================================================ */
+function renderStats(){
+  const ids = Object.keys(progress);
+  const ok  = ids.reduce((s,k)=>s+progress[k].ok,0);
+  const tot = ids.reduce((s,k)=>s+progress[k].ok+progress[k].ko,0);
+  $("#p-seen").textContent = ids.length;
+  $("#p-mastered").textContent = ids.filter(k=>progress[k].box>=3).length;
+  $("#p-rate").textContent = tot ? Math.round(ok/tot*100)+"%" : "—";
+
+  $("#p-themes").innerHTML = THEMES.map(t=>{
+    const qs = QUESTIONS.filter(q=>q.theme===t);
+    const m  = qs.filter(q=>progress[q.id] && progress[q.id].box>=3).length;
+    const pct = Math.round(m/qs.length*100);
+    return `<div class="tline">
+      <div class="tline-h"><span class="tline-n">${t}</span><span class="tline-v">${m} / ${qs.length}</span></div>
+      <div class="tbar"><i style="width:${pct}%"></i></div>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   ÉVÉNEMENTS
+   ============================================================ */
+$$(".mode").forEach(b => b.onclick = ()=>{
+  const m = b.dataset.mode;
+  if(m === "training"){ go("config"); renderConfig(); }
+  else start(m);
+});
+$$("[data-go]").forEach(b => b.onclick = ()=>go(b.dataset.go));
+$("#home-link").onclick = e => { e.preventDefault(); go("home"); };
+$("#btn-stats").onclick = ()=>go("stats");
+$("#btn-start").onclick = ()=>start("training");
+$("#btn-next").onclick  = next;
+$("#btn-idk").onclick   = ()=>answer(-1);
+$("#btn-again").onclick = ()=>start(S.mode);
+$("#btn-reset").onclick = async ()=>{
+  if(!confirm("Effacer toute la progression ? Cette action est définitive.")) return;
+  progress = {}; await Store.set(KEY, progress); renderStats(); renderHome();
+};
+
+document.addEventListener("keydown", e=>{
+  if(!$("#s-quiz").classList.contains("active")) return;
+  if(e.key>="1" && e.key<="4"){
+    const b = $$("#q-opts .opt")[+e.key-1];
+    if(b && !b.disabled) b.click();
+  }
+  if(e.key==="Enter" && S.locked) next();
+});
+
+/* ============================================================
+   DÉMARRAGE
+   ============================================================ */
+(async function init(){
+  progress = (await Store.get(KEY)) || {};
+  renderHome();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
